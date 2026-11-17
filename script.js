@@ -144,7 +144,7 @@ const GAME_SECTORS = [
         ]
     },
     {
-        title: "AULA MAGNA (FINALE): SCIENZE", color: 0xeab308, isBinary: true, pos: { x: 0, z: -27 },
+        title: "AULA MAGNA (FINALE): SCIENZE", color: 0xeab308, isBinary: false, pos: { x: 0, z: -27 },
         questPos: { x: 0, z: -29 }, doorSide: "south",
         questions: [
             { q: "Quale organo pompa il sangue in tutto il corpo umano?", options: ["I polmoni", "Il cuore", "Il fegato", "Lo stomaco"], correct: 1, explanation: "Il cuore è la pompa principale dell'apparato circolatorio." },
@@ -363,7 +363,7 @@ function createClassroomRoom(sec) {
         group.add(neon);
     });
 
-    const wallDist = sec.isBinary ? 6.8 : 15.8;
+    const wallDist = sec.pos.x === 0 ? 6.8 : 15.8;
     const boardZ = dir * wallDist;
     const blackboard = new THREE.Mesh(new THREE.BoxGeometry(7.2, 2.2, 0.12), boardMat);
     blackboard.position.set(0, 2.6, boardZ);
@@ -410,8 +410,9 @@ function createClassroomRoom(sec) {
     pad.position.set(x, 0.015, z + interactLocalZ);
     scene.add(pad);
 
-    const rowOffsets = sec.isBinary ? [1.2, 3.6] : [-dir * 4.8, -dir * 8.2];
-    const colOffsets = sec.isBinary ? [-4.2, 0, 4.2] : [-5.5, 0, 5.5];
+    const isAulaMagna = sec.pos.x === 0;
+    const rowOffsets = isAulaMagna ? [1.2, 3.6] : [-dir * 4.8, -dir * 8.2];
+    const colOffsets = isAulaMagna ? [-4.2, 0, 4.2] : [-5.5, 0, 5.5];
 
     rowOffsets.forEach(function(rz) {
         colOffsets.forEach(function(cx) {
@@ -745,7 +746,7 @@ function startQuiz(sectorIdx) {
     const sec = GAME_SECTORS[sectorIdx];
     $('sector-title').textContent = sec.title;
     const helperEl = $('binary-helper');
-    if (helperEl) helperEl.classList.toggle('hidden', !sec.isBinary);
+    if (helperEl) helperEl.classList.add('hidden');
 
     activeQuestions = shuffleArray(sec.questions).slice(0, 5);
     currentQuestionIdx = 0;
