@@ -839,20 +839,29 @@ function endGame(victory) {
 
 function getLB() {
     try {
-        return JSON.parse(localStorage.getItem('einstein_lab_lb')) || [
+        let lb = JSON.parse(localStorage.getItem('einstein_lab_lb')) || [
             { name: "Albert", score: 1920 },
             { name: "Marie", score: 1750 },
             { name: "Nikola", score: 1580 }
         ];
+        // Filtra via qualsiasi voce inappropriata (es. variazioni del nome)
+        lb = lb.filter(function(entry) {
+            return entry.name && entry.name.trim().toLowerCase() !== "hitler";
+        });
+        return lb;
     } catch(e) {
-        return [{ name: "Albert", score: 1920 }];
+        return [
+            { name: "Albert", score: 1920 },
+            { name: "Marie", score: 1750 },
+            { name: "Nikola", score: 1580 }
+        ];
     }
 }
 
 function renderLeaderboards() {
     const lb = getLB();
     const html = lb.map(function(e, i) {
-        return '<li><span>#' + (i + 1) + ' ' + e.name + '</span> <span>' + e.score + ' pt</span></li>';
+        return '<li>#' + (i + 1) + ' ' + e.name + ' - ' + e.score + ' pt</li>';
     }).join('');
     const startLb = $('start-leaderboard');
     const endLb = $('end-leaderboard');
@@ -864,10 +873,16 @@ const saveBtn = $('save-score-btn');
 if (saveBtn) {
     saveBtn.onclick = function() {
         const inputName = $('player-name');
-        const playerName = inputName && inputName.value ? inputName.value.trim() : "Studente";
+        let playerName = inputName && inputName.value ? inputName.value.trim() : "Studente";
+        
+        // Se inseriscono quel nome, lo blocchiamo o cambiamo d'ufficio
+        if (playerName.toLowerCase() === "hitler") {
+            playerName = "Studente";
+        }
+
         const currentScore = typeof score !== 'undefined' ? score : 0;
 
-        const lb = getLB();
+        let lb = getLB();
         lb.push({ name: playerName || "Studente", score: currentScore });
         lb.sort(function(a, b) { return b.score - a.score; });
         if (lb.length > 5) lb.length = 5;
