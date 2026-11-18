@@ -225,16 +225,14 @@ function playSound(type) {
     } catch(e) { console.log("Audio non supportato"); }
 }
 
-// MODELLO DEL GIOCATORE MIGLIORATO (STUDENTE DETTAGLIATO)
 function createStudentMesh() {
     const group = new THREE.Group();
-    const hoodieMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 }); // Felpa rossa moderna
-    const jeansMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.6 }); // Jeans blu
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 }); // Pelle
-    const shoesMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 }); // Scarpe da ginnastica scure
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x29180b, roughness: 0.8 });  // Capelli castani scuri
+    const hoodieMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
+    const jeansMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.6 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 });
+    const shoesMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 });
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x29180b, roughness: 0.8 });
 
-    // Gambe articolate con scarpe
     const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.18), jeansMat); 
     lLeg.position.set(-0.13, 0.26, 0); group.add(lLeg);
     
@@ -247,21 +245,18 @@ function createStudentMesh() {
     const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.24), shoesMat);
     rShoe.position.set(0.13, 0.07, 0.03); group.add(rShoe);
 
-    // Torso (Felpa) con cappuccio accennato dietro
     const body = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.82, 0.36), hoodieMat); 
     body.position.y = 0.90; group.add(body);
 
     const hood = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.24, 0.22), hoodieMat);
     hood.position.set(0, 1.34, -0.1); group.add(hood);
 
-    // Braccia anatomiche
     const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.58, 0.15), hoodieMat); 
     lArm.position.set(-0.39, 0.92, 0); group.add(lArm);
     
     const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.58, 0.15), hoodieMat); 
     rArm.position.set(0.39, 0.92, 0); group.add(rArm);
 
-    // Testa e Capelli
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), skinMat); 
     head.position.y = 1.58; group.add(head);
     
@@ -271,14 +266,13 @@ function createStudentMesh() {
     return { group: group, lArm: lArm, rArm: rArm, lLeg: lLeg, rLeg: rLeg };
 }
 
-// MODELLO DEI PROFESSORI MIGLIORATO (ELEGANTI CON GIACCA E CRAVATTA)
 function createProfessorMesh(color) {
     const group = new THREE.Group();
-    const suitMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 }); // Giacca scura professionale
-    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }); // Camicia bianca
-    const tieMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.2 });    // Cravatta a tema materia
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 }); // Viso
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 }); // Capelli brizzolati da prof
+    const suitMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 });
+    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 });
+    const tieMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.2 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 });
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 });
 
     const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.92, 0.36), suitMat); 
     body.position.y = 0.92; group.add(body);
@@ -690,27 +684,25 @@ function animate3D() {
             if (!checkCollision(player.position.x, player.position.z + dz)) player.position.z += dz;
             
             const targetRotation = Math.atan2(dx, dz);
-            // Rotazione fluida verso la direzione del movimento
             player.rotation.y += (targetRotation - player.rotation.y) * 0.25;
 
-            // ANIMAZIONE DI CAMMINATA FLUIDA E INCLINAZIONE DINAMICA
-            walkTime += 0.3;
-            leftArm.rotation.x = Math.sin(walkTime) * 0.75;
-            rightArm.rotation.x = -Math.sin(walkTime) * 0.75;
-            legLeft.rotation.x = -Math.sin(walkTime) * 0.75;
-            legRight.rotation.x = Math.sin(walkTime) * 0.75;
+            // ANIMAZIONE DI CAMMINATA STABILE (Rimbalzo verticale rimosso per eliminare le vibrazioni)
+            walkTime += 0.25;
+            leftArm.rotation.x = Math.sin(walkTime) * 0.65;
+            rightArm.rotation.x = -Math.sin(walkTime) * 0.65;
+            legLeft.rotation.x = -Math.sin(walkTime) * 0.65;
+            legRight.rotation.x = Math.sin(walkTime) * 0.65;
             
-            // Leggera inclinazione del corpo in base alla direzione della camminata
-            player.rotation.z = Math.sin(walkTime) * 0.04;
-            player.position.y = Math.abs(Math.sin(walkTime * 2)) * 0.05; // Piccolo rimbalzo del passo
+            // Leggerissimo dondolio laterale controllato, altezza Y fissa a 0
+            player.rotation.z = Math.sin(walkTime) * 0.02;
+            player.position.y = 0; 
         } else {
-            // Ritorno graduale alla posizione di riposo
             leftArm.rotation.x *= 0.8; 
             rightArm.rotation.x *= 0.8;
             legLeft.rotation.x *= 0.8; 
             legRight.rotation.x *= 0.8;
             player.rotation.z *= 0.8;
-            player.position.y += (0 - player.position.y) * 0.2;
+            player.position.y = 0;
         }
 
         camera.position.set(player.position.x, player.position.y + 8.5, player.position.z + 10.5);
