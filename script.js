@@ -169,7 +169,7 @@ const GAME_SECTORS = [
             { q: "Quale metallo è liquido a temperatura ambiente?", options: ["Rame", "Mercurio", "Ferro", "Oro"], correct: 1, explanation: "Il mercurio è l'unico metallo liquido in condizioni ordinarie." },
             { q: "Quale organo del corpo umano controlla il pensiero, la memoria e i movimenti volontari?", options: ["Il midollo spinale", "Il cervello", "Il cuore", "Il fegato"], correct: 1, explanation: "Il cervello è il centro di controllo del sistema nervoso." },
             { q: "Quale scala si usa per misurare la magnitudo di un terremoto?", options: ["Scala Celsius", "Scala Richter", "Scala Beaufort", "Barometro"], correct: 1, explanation: "La scala Richter misura l'energia sprigionata da un sisma." },
-            { q: "Cosa misura il termometro?", options: ["La pressione", "La temperatura", "L'umidità", "La velocità del vento"], correct: 1, explanation: "Il termometro rileva la temperatura corporea o ambientale." },
+            { q: "Cosa misura il termometro?", options: ["La pressione", "La temperatura", "L'umidità", "L'umidità del vento"], correct: 1, explanation: "Il termometro rileva la temperatura corporea o ambientale." },
             { q: "Quale vitamina viene sintetizzata dalla pelle grazie all'esposizione alla luce solare?", options: ["Vitamina A", "Vitamina C", "Vitamina D", "Vitamina K"], correct: 2, explanation: "I raggi solari attivano la produzione di vitamina D." },
             { q: "Come si chiama il processo con cui le cellule si dividono generando due cellule figlie identiche?", options: ["Mitosi", "Fotosintesi", "Digestione", "Respirazione"], correct: 0, explanation: "La mitosi è la divisione cellulare per la crescita e la riparazione dei tessuti." },
             { q: "Quale gas costituisce circa il 78% dell'aria che respiriamo?", options: ["Ossigeno", "Azoto", "Anidride carbonica", "Idrogeno"], correct: 1, explanation: "L'atmosfera terrestre è composta per la maggior parte da azoto." },
@@ -225,46 +225,79 @@ function playSound(type) {
     } catch(e) { console.log("Audio non supportato"); }
 }
 
+// MODELLO DEL GIOCATORE MIGLIORATO (STUDENTE DETTAGLIATO)
 function createStudentMesh() {
     const group = new THREE.Group();
-    const hoodieMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.5 });
-    const sleeveMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 });
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 });
-    const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.6 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
+    const hoodieMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 }); // Felpa rossa moderna
+    const jeansMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.6 }); // Jeans blu
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 }); // Pelle
+    const shoesMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 }); // Scarpe da ginnastica scure
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x29180b, roughness: 0.8 });  // Capelli castani scuri
 
-    const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), pantsMat); lLeg.position.set(-0.14, 0.275, 0); group.add(lLeg);
-    const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.55, 0.18), pantsMat); rLeg.position.set(0.14, 0.275, 0); group.add(rLeg);
+    // Gambe articolate con scarpe
+    const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.18), jeansMat); 
+    lLeg.position.set(-0.13, 0.26, 0); group.add(lLeg);
+    
+    const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.18), jeansMat); 
+    rLeg.position.set(0.13, 0.26, 0); group.add(rLeg);
 
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.85, 0.38), hoodieMat); body.position.y = 0.92; group.add(body);
+    const lShoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.24), shoesMat);
+    lShoe.position.set(-0.13, 0.07, 0.03); group.add(lShoe);
 
-    const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.6, 0.16), sleeveMat); lArm.position.set(-0.42, 0.95, 0); group.add(lArm);
-    const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.6, 0.16), sleeveMat); rArm.position.set(0.42, 0.95, 0); group.add(rArm);
+    const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.24), shoesMat);
+    rShoe.position.set(0.13, 0.07, 0.03); group.add(rShoe);
 
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.46, 0.46), skinMat); head.position.y = 1.62; group.add(head);
-    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.18, 0.48), hairMat); hair.position.y = 1.82; group.add(hair);
+    // Torso (Felpa) con cappuccio accennato dietro
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.82, 0.36), hoodieMat); 
+    body.position.y = 0.90; group.add(body);
+
+    const hood = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.24, 0.22), hoodieMat);
+    hood.position.set(0, 1.34, -0.1); group.add(hood);
+
+    // Braccia anatomiche
+    const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.58, 0.15), hoodieMat); 
+    lArm.position.set(-0.39, 0.92, 0); group.add(lArm);
+    
+    const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.58, 0.15), hoodieMat); 
+    rArm.position.set(0.39, 0.92, 0); group.add(rArm);
+
+    // Testa e Capelli
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), skinMat); 
+    head.position.y = 1.58; group.add(head);
+    
+    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.18, 0.45), hairMat); 
+    hair.position.y = 1.77; group.add(hair);
 
     return { group: group, lArm: lArm, rArm: rArm, lLeg: lLeg, rLeg: rLeg };
 }
 
+// MODELLO DEI PROFESSORI MIGLIORATO (ELEGANTI CON GIACCA E CRAVATTA)
 function createProfessorMesh(color) {
     const group = new THREE.Group();
-    const suitMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
-    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
-    const tieMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3 });
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.8 });
+    const suitMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 }); // Giacca scura professionale
+    const shirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }); // Camicia bianca
+    const tieMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.2 });    // Cravatta a tema materia
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 }); // Viso
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 }); // Capelli brizzolati da prof
 
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.9, 0.34), suitMat); body.position.y = 0.9; group.add(body);
-    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.5, 0.36), shirtMat); shirt.position.y = 1.05; group.add(shirt);
-    const tie = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 0.38), tieMat); tie.position.y = 1.02; group.add(tie);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.92, 0.36), suitMat); 
+    body.position.y = 0.92; group.add(body);
 
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), skinMat); head.position.y = 1.6; group.add(head);
-    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.16, 0.45), hairMat); hair.position.y = 1.82; group.add(hair);
+    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.55, 0.38), shirtMat); 
+    shirt.position.y = 1.08; group.add(shirt);
 
-    const glowMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 1.0 });
-    const glowBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), glowMat);
-    glowBadge.position.set(0, 2.25, 0);
+    const tie = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 0.4), tieMat); 
+    tie.position.y = 1.05; group.add(tie);
+
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), skinMat); 
+    head.position.y = 1.62; group.add(head);
+
+    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.16, 0.44), hairMat); 
+    hair.position.y = 1.84; group.add(hair);
+
+    const glowMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 1.2 });
+    const glowBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.18, 0), glowMat);
+    glowBadge.position.set(0, 2.3, 0);
     group.add(glowBadge);
 
     return { group: group, badge: glowBadge };
@@ -655,16 +688,29 @@ function animate3D() {
         if (dx !== 0 || dz !== 0) {
             if (!checkCollision(player.position.x + dx, player.position.z)) player.position.x += dx;
             if (!checkCollision(player.position.x, player.position.z + dz)) player.position.z += dz;
-            player.rotation.y = Math.atan2(dx, dz);
+            
+            const targetRotation = Math.atan2(dx, dz);
+            // Rotazione fluida verso la direzione del movimento
+            player.rotation.y += (targetRotation - player.rotation.y) * 0.25;
 
-            walkTime += 0.24;
-            leftArm.rotation.x = Math.sin(walkTime) * 0.6;
-            rightArm.rotation.x = -Math.sin(walkTime) * 0.6;
-            legLeft.rotation.x = -Math.sin(walkTime) * 0.6;
-            legRight.rotation.x = -Math.sin(walkTime) * 0.6;
+            // ANIMAZIONE DI CAMMINATA FLUIDA E INCLINAZIONE DINAMICA
+            walkTime += 0.3;
+            leftArm.rotation.x = Math.sin(walkTime) * 0.75;
+            rightArm.rotation.x = -Math.sin(walkTime) * 0.75;
+            legLeft.rotation.x = -Math.sin(walkTime) * 0.75;
+            legRight.rotation.x = Math.sin(walkTime) * 0.75;
+            
+            // Leggera inclinazione del corpo in base alla direzione della camminata
+            player.rotation.z = Math.sin(walkTime) * 0.04;
+            player.position.y = Math.abs(Math.sin(walkTime * 2)) * 0.05; // Piccolo rimbalzo del passo
         } else {
-            leftArm.rotation.x = 0; rightArm.rotation.x = 0;
-            legLeft.rotation.x = 0; legRight.rotation.x = 0;
+            // Ritorno graduale alla posizione di riposo
+            leftArm.rotation.x *= 0.8; 
+            rightArm.rotation.x *= 0.8;
+            legLeft.rotation.x *= 0.8; 
+            legRight.rotation.x *= 0.8;
+            player.rotation.z *= 0.8;
+            player.position.y += (0 - player.position.y) * 0.2;
         }
 
         camera.position.set(player.position.x, player.position.y + 8.5, player.position.z + 10.5);
@@ -844,7 +890,6 @@ function getLB() {
             { name: "Marie", score: 1750 },
             { name: "Nikola", score: 1580 }
         ];
-        // Filtra via qualsiasi voce inappropriata (es. variazioni del nome)
         lb = lb.filter(function(entry) {
             return entry.name && entry.name.trim().toLowerCase() !== "hitler";
         });
@@ -875,7 +920,6 @@ if (saveBtn) {
         const inputName = $('player-name');
         let playerName = inputName && inputName.value ? inputName.value.trim() : "Studente";
         
-        // Se inseriscono quel nome, lo blocchiamo o cambiamo d'ufficio
         if (playerName.toLowerCase() === "hitler") {
             playerName = "Studente";
         }
