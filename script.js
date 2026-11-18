@@ -167,7 +167,7 @@ const GAME_SECTORS = [
             { q: "Quale parte della pianta assorbe acqua e sali minerali dal terreno?", options: ["Le foglie", "Il fusto", "Le radici", "I fiori"], correct: 2, explanation: "Le radici ancorano la pianta e assorbono i nutrienti dal suolo." },
             { q: "Come si definisce un animale che si nutre sia di carne che di vegetali?", options: ["Erbivoro", "Carnivoro", "Onnivoro", "Insettivoro"], correct: 2, explanation: "Gli onnivori mangiano una dieta mista." },
             { q: "Quale metallo è liquido a temperatura ambiente?", options: ["Rame", "Mercurio", "Ferro", "Oro"], correct: 1, explanation: "Il mercurio è l'unico metallo liquido in condizioni ordinarie." },
-            { q: "Quale organo del corpo umano controlla il pensiero, la memoria e i movimenti volontari?", options: ["Il midollo spinale", "Il cervello", "Il cuore", "Il fegato"], correct: 1, explanation: "Il cervello è il centro di controllo del sistema nervoso." },
+            { q: "Quale organo del corpo umano controlla il pensiero, la memoria e i movimenti volontari?", options: ["Il midollo spinale", "Il cervello", "Il cuore", "I fegato"], correct: 1, explanation: "Il cervello è il centro di controllo del sistema nervoso." },
             { q: "Quale scala si usa per misurare la magnitudo di un terremoto?", options: ["Scala Celsius", "Scala Richter", "Scala Beaufort", "Barometro"], correct: 1, explanation: "La scala Richter misura l'energia sprigionata da un sisma." },
             { q: "Cosa misura il termometro?", options: ["La pressione", "La temperatura", "L'umidità", "L'umidità del vento"], correct: 1, explanation: "Il termometro rileva la temperatura corporea o ambientale." },
             { q: "Quale vitamina viene sintetizzata dalla pelle grazie all'esposizione alla luce solare?", options: ["Vitamina A", "Vitamina C", "Vitamina D", "Vitamina K"], correct: 2, explanation: "I raggi solari attivano la produzione di vitamina D." },
@@ -187,6 +187,8 @@ let keys = { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: 
 let gameState = 'START', currentSector = null, completedSectors = 0, lives = 3, score = 0, questionStartTime = 0;
 let currentQuestionIdx = 0, activeQuestions = [], leftArm, rightArm, legLeft, legRight, walkTime = 0;
 let audioCtx = null;
+let selectedHoodieColor = 0xef4444; // Colore di default (Rosso)
+
 const $ = function(id) { return document.getElementById(id); };
 
 function playSound(type) {
@@ -225,43 +227,51 @@ function playSound(type) {
     } catch(e) { console.log("Audio non supportato"); }
 }
 
-function createStudentMesh() {
+// PERSONAGGIO PIÙ ARROTONDATO E MENO QUADRATO (USANDO CAPSULE/CILINDRI)
+function createStudentMesh(hoodieHexColor) {
     const group = new THREE.Group();
-    const hoodieMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
-    const jeansMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.6 });
+    const hoodieMat = new THREE.MeshStandardMaterial({ color: hoodieHexColor || 0xef4444, roughness: 0.4 });
+    const jeansMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.5 });
     const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 });
-    const shoesMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x29180b, roughness: 0.8 });
+    const shoesMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x29180b, roughness: 0.7 });
 
-    const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.18), jeansMat); 
+    // Gambe cilindriche smussate
+    const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.52, 16), jeansMat); 
     lLeg.position.set(-0.13, 0.26, 0); group.add(lLeg);
     
-    const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.18), jeansMat); 
+    const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.52, 16), jeansMat); 
     rLeg.position.set(0.13, 0.26, 0); group.add(rLeg);
 
-    const lShoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.24), shoesMat);
-    lShoe.position.set(-0.13, 0.07, 0.03); group.add(lShoe);
+    // Scarpe arrotondate
+    const lShoe = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.18, 8, 16), shoesMat);
+    lShoe.rotation.x = Math.PI / 2;
+    lShoe.position.set(-0.13, 0.08, 0.03); group.add(lShoe);
 
-    const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.24), shoesMat);
-    rShoe.position.set(0.13, 0.07, 0.03); group.add(rShoe);
+    const rShoe = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.18, 8, 16), shoesMat);
+    rShoe.rotation.x = Math.PI / 2;
+    rShoe.position.set(0.13, 0.08, 0.03); group.add(rShoe);
 
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.82, 0.36), hoodieMat); 
-    body.position.y = 0.90; group.add(body);
+    // Torso con forme cilindriche/capsula per evitare l'effetto squadrato
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.42, 8, 16), hoodieMat); 
+    body.position.y = 0.92; group.add(body);
 
-    const hood = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.24, 0.22), hoodieMat);
-    hood.position.set(0, 1.34, -0.1); group.add(hood);
+    const hood = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), hoodieMat);
+    hood.position.set(0, 1.32, -0.06); group.add(hood);
 
-    const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.58, 0.15), hoodieMat); 
-    lArm.position.set(-0.39, 0.92, 0); group.add(lArm);
+    // Braccia cilindriche
+    const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.55, 16), hoodieMat); 
+    lArm.position.set(-0.36, 0.92, 0); group.add(lArm);
     
-    const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.58, 0.15), hoodieMat); 
-    rArm.position.set(0.39, 0.92, 0); group.add(rArm);
+    const rArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.55, 16), hoodieMat); 
+    rArm.position.set(0.36, 0.92, 0); group.add(rArm);
 
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), skinMat); 
+    // Testa sferica / morbida
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 24), skinMat); 
     head.position.y = 1.58; group.add(head);
     
-    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.18, 0.45), hairMat); 
-    hair.position.y = 1.77; group.add(hair);
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.23, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.5), hairMat); 
+    hair.position.y = 1.64; group.add(hair);
 
     return { group: group, lArm: lArm, rArm: rArm, lLeg: lLeg, rLeg: rLeg };
 }
@@ -274,20 +284,21 @@ function createProfessorMesh(color) {
     const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd5b5, roughness: 0.5 });
     const hairMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 });
 
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.92, 0.36), suitMat); 
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.45, 8, 16), suitMat); 
     body.position.y = 0.92; group.add(body);
 
-    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.55, 0.38), shirtMat); 
+    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.5, 0.36), shirtMat); 
     shirt.position.y = 1.08; group.add(shirt);
 
-    const tie = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 0.4), tieMat); 
-    tie.position.y = 1.05; group.add(tie);
+    const tie = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.38, 8), tieMat); 
+    tie.rotation.x = Math.PI;
+    tie.position.set(0, 1.05, 0.19); group.add(tie);
 
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), skinMat); 
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 24), skinMat); 
     head.position.y = 1.62; group.add(head);
 
-    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.16, 0.44), hairMat); 
-    hair.position.y = 1.84; group.add(hair);
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.23, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.5), hairMat); 
+    hair.position.y = 1.68; group.add(hair);
 
     const glowMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 1.2 });
     const glowBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.18, 0), glowMat);
@@ -602,7 +613,7 @@ function init3D() {
 
         createAmericanHallwayDecor();
 
-        const student = createStudentMesh();
+        const student = createStudentMesh(selectedHoodieColor);
         player = student.group;
         leftArm = student.lArm;
         rightArm = student.rArm;
@@ -686,14 +697,12 @@ function animate3D() {
             const targetRotation = Math.atan2(dx, dz);
             player.rotation.y += (targetRotation - player.rotation.y) * 0.25;
 
-            // ANIMAZIONE DI CAMMINATA STABILE (Rimbalzo verticale rimosso per eliminare le vibrazioni)
             walkTime += 0.25;
             leftArm.rotation.x = Math.sin(walkTime) * 0.65;
             rightArm.rotation.x = -Math.sin(walkTime) * 0.65;
             legLeft.rotation.x = -Math.sin(walkTime) * 0.65;
             legRight.rotation.x = Math.sin(walkTime) * 0.65;
             
-            // Leggerissimo dondolio laterale controllato, altezza Y fissa a 0
             player.rotation.z = Math.sin(walkTime) * 0.02;
             player.position.y = 0; 
         } else {
@@ -929,7 +938,20 @@ if (saveBtn) {
     };
 }
 
+// Gestione personalizzazione colore felpa dall'HTML
+function setupCustomizer() {
+    const colorBtns = document.querySelectorAll('.color-option');
+    colorBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            colorBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedHoodieColor = parseInt(btn.getAttribute('data-color'));
+        });
+    });
+}
+
 window.onload = function() {
+    setupCustomizer();
     init3D();
     renderLeaderboards();
     const startBtn = $('start-btn');
